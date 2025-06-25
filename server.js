@@ -166,6 +166,6 @@ app.use((req, res, next) => {
   });
 });
 
-app.listen(PORT, () => {
+app.listen(8081,'0.0.0.0', () => {
   console.log(`<=== Server is up and running on port ${PORT} ====>`);
 });
