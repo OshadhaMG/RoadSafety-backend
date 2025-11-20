@@ -7,4 +7,10 @@ const authDB = mongoose.createConnection(
   { useNewUrlParser: true, useUnifiedTopology: true }
 );
 
-module.exports = { quizDB, authDB };
+const resultDB = mongoose.createConnection(
+  'mongodb+srv://admin:roadSafetyAdmin8046@roadsafety.3vdbins.mongodb.net/roadSafetyQuizApp?retryWrites=true&w=majority&appName=roadSafety',
+  { useNewUrlParser: true, useUnifiedTopology: true }
+);
+
+
+module.exports = { quizDB, authDB, resultDB };

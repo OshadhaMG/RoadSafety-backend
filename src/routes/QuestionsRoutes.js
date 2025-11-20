@@ -28,4 +28,7 @@ router.delete('/zone/:zoneName/:id', Controller.deleteQuestion);
 // NEW route for login
 router.post('/login', Controller.saveLogin);
 
+router.post('/result', Controller.saveResult);
+
+
 module.exports = router;

@@ -135,7 +135,6 @@ mongoose.connect(URL, {
 const connection = mongoose.connection;
 connection.once("open", () => {
   console.log("        <=== Database connected ! ====>");
-  console.log(`<=== Running on URL: http://localhost:${PORT} ====>`);
 });
 
 // API Routes

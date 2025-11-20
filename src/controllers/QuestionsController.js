@@ -79,6 +79,7 @@
 // controllers/QuestionsController.js
 const { Zone01, Zone02, Zone03, Zone04 } = require('../models/QuestionsAndAnswersModel');
 const Login = require('../models/LoginModel');
+const Result = require('../models/ResultModel');
 
 const getZoneModel = (zoneName) => {
   switch (zoneName.toLowerCase()) {
@@ -156,13 +157,28 @@ exports.deleteQuestion = async (req, res) => {
 // NEW — Save login data
 exports.saveLogin = async (req, res) => {
   try {
-    const { studentName, school, grade } = req.body;
-    if (!studentName || !school || !grade) {
+    const { firstName, lastName, uid, school, grade } = req.body;
+
+    if (!firstName || !lastName || !uid || !school || !grade) {
       return res.status(400).json({ message: 'All fields are required' });
     }
-    const loginEntry = await Login.create({ studentName, school, grade });
+    const loginEntry = await Login.create({ firstName, lastName, uid, school, grade });
     res.status(201).json({ message: 'Login saved successfully', data: loginEntry });
   } catch (err) {
     res.status(500).json({ message: 'Error saving login', error: err });
+  }
+};
+
+exports.saveResult = async (req, res) => {
+  try {
+    const { firstName, lastName, uid, score, zone } = req.body;
+
+    if (!firstName || !lastName || !uid || !score || !zone) {
+      return res.status(400).json({ message: 'All fields are required' });
+    }
+    const resultEntry = await Result.create({ firstName, lastName, uid, score, zone });
+    res.status(201).json({ message: 'Login saved successfully', data: resultEntry });
+  } catch (err) {
+    res.status(500).json({ message: 'Error saving result', error: err });
   }
 };
