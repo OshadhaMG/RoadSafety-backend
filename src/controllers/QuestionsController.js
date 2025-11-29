@@ -182,3 +182,71 @@ exports.saveResult = async (req, res) => {
     res.status(500).json({ message: 'Error saving result', error: err });
   }
 };
+
+
+exports.getTotalScore = async (req, res) => {
+  try {
+    const { firstName, lastName } = req.query;
+
+    // Validate required parameters
+    if (!firstName || !lastName) {
+      return res.status(400).json({ 
+        message: 'firstName and lastName are required as query parameters' 
+      });
+    }
+
+    // Find all results for this user across all zones
+    const results = await Result.find({ 
+      firstName: firstName.trim(), 
+      lastName: lastName.trim() 
+    }).sort({ zone: 1 }); // Sort by zone
+
+    // Check if user has any results
+    if (!results || results.length === 0) {
+      return res.status(404).json({ 
+        message: 'No results found for this user',
+        detail: `No quiz results found for ${firstName} ${lastName}`
+      });
+    }
+
+    // Calculate total score from all zones
+    const totalScore = results.reduce((sum, result) => {
+      return sum + (result.score || 0);
+    }, 0);
+
+    // Get individual zone scores
+    const zoneScores = results.map(result => ({
+      zone: result.zone,
+      score: result.score || 0
+    }));
+
+    // Calculate total possible questions (10 per zone * number of zones completed)
+    const totalQuestions = results.length * 10;
+
+    // Calculate percentage
+    const percentage = totalQuestions > 0 
+      ? ((totalScore / totalQuestions) * 100).toFixed(2) 
+      : 0;
+
+    // Send response
+    res.status(200).json({
+      success: true,
+      firstName: results[0].firstName,
+      lastName: results[0].lastName,
+      uid: results[0].uid,
+      totalScore,
+      totalQuestions,
+      zonesCompleted: results.length,
+      zoneScores,
+      percentage: parseFloat(percentage),
+      timestamp: new Date()
+    });
+
+  } catch (err) {
+    console.error('Error fetching total score:', err);
+    res.status(500).json({ 
+      message: 'Error fetching total score',
+      error: err.message 
+    });
+  }
+};

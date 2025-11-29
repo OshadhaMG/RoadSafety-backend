@@ -29,6 +29,6 @@ router.delete('/zone/:zoneName/:id', Controller.deleteQuestion);
 router.post('/login', Controller.saveLogin);
 
 router.post('/result', Controller.saveResult);
-
+router.get('/result/total-score', Controller.getTotalScore); // NEW ROUTE
 
 module.exports = router;
