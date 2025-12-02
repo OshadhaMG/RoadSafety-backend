@@ -268,6 +268,8 @@ exports.getTotalScore = async (req, res) => {
       lastName: lastName.trim() 
     }).sort({ zone: 1 }); // Sort by zone
 
+    console.log("results: ",results)
+
     // Check if user has any results
     if (!results || results.length === 0) {
       return res.status(404).json({
