@@ -173,7 +173,7 @@ exports.saveResult = async (req, res) => {
   try {
     const { firstName, lastName, uid, score, zone } = req.body;
 
-    if (!firstName || !lastName || !uid || !score || !zone) {
+    if (!firstName || !lastName || !uid || score === null || !zone) {
       return res.status(400).json({ message: 'All fields are required' });
     }
     const resultEntry = await Result.create({ firstName, lastName, uid, score, zone });
