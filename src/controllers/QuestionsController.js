@@ -169,17 +169,137 @@ exports.saveLogin = async (req, res) => {
   }
 };
 
+// exports.saveResult = async (req, res) => {
+//   try {
+//     const { firstName, lastName, uid, score, zone, drivingCheckAnswers } = req.body;
+
+//     // basic validation
+//     if (
+//       !firstName ||
+//       !lastName ||
+//       !uid ||
+//       score === null || score === undefined || // allow 0
+//       !zone ||
+//       !drivingCheckAnswers ||
+//       typeof drivingCheckAnswers !== 'object' ||
+//       Array.isArray(drivingCheckAnswers)
+//     ) {
+//       return res.status(400).json({ message: 'All fields are required' });
+//     }
+
+//     // conditional validation
+//     const { hasDriven, drivenVehicleType, willingnessToDrive } = drivingCheckAnswers;
+
+//     if (
+//       !hasDriven ||
+//       (hasDriven === 'yes' && !drivenVehicleType) ||
+//       (hasDriven === 'no' && !willingnessToDrive)
+//     ) {
+//       return res.status(400).json({
+//         message: 'Invalid driving check answers'
+//       });
+//     }
+
+//     // normalize answers
+//     const normalizedDrivingAnswers = {
+//       hasDriven,
+//       drivenVehicleType: hasDriven === 'yes' ? drivenVehicleType : null,
+//       willingnessToDrive: hasDriven === 'no' ? willingnessToDrive : null
+//     };
+
+//     // save to DB
+//     const resultEntry = await Result.create({
+//       firstName,
+//       lastName,
+//       uid,
+//       score,
+//       zone,
+//       drivingCheckAnswers: normalizedDrivingAnswers
+//     });
+
+//     return res.status(201).json({
+//       message: 'Result saved successfully',
+//       data: resultEntry
+//     });
+
+//   } catch (err) {
+//     console.error(err);
+//     return res.status(500).json({
+//       message: 'Error saving result',
+//       error: err.message
+//     });
+//   }
+// };
+
 exports.saveResult = async (req, res) => {
   try {
     const { firstName, lastName, uid, score, zone } = req.body;
+    let { drivingCheckAnswers } = req.body;
 
-    if (!firstName || !lastName || !uid || score === null || !zone) {
+    // parse if string
+    if (typeof drivingCheckAnswers === 'string') {
+      try {
+        drivingCheckAnswers = JSON.parse(drivingCheckAnswers);
+      } catch (e) {
+        return res.status(400).json({ message: 'Invalid drivingCheckAnswers JSON' });
+      }
+    }
+
+    // basic validation
+    if (
+      !firstName ||
+      !lastName ||
+      !uid ||
+      score === null || score === undefined || // allow 0
+      !zone ||
+      !drivingCheckAnswers ||
+      typeof drivingCheckAnswers !== 'object' ||
+      Array.isArray(drivingCheckAnswers)
+    ) {
       return res.status(400).json({ message: 'All fields are required' });
     }
-    const resultEntry = await Result.create({ firstName, lastName, uid, score, zone });
-    res.status(201).json({ message: 'Login saved successfully', data: resultEntry });
+
+    // conditional validation
+    const { hasDriven, drivenVehicleType, willingnessToDrive } = drivingCheckAnswers;
+
+    if (
+      !hasDriven ||
+      (hasDriven === 'yes' && !drivenVehicleType) ||
+      (hasDriven === 'no' && !willingnessToDrive)
+    ) {
+      return res.status(400).json({
+        message: 'Invalid driving check answers'
+      });
+    }
+
+    const normalizedDrivingAnswers = {
+      hasDriven,
+      drivenVehicleType: hasDriven === 'yes' ? drivenVehicleType : null,
+      willingnessToDrive: hasDriven === 'no' ? willingnessToDrive : null
+    };
+
+    const resultEntry = await Result.create({
+      firstName,
+      lastName,
+      uid,
+      score,
+      zone,
+      drivingCheckAnswers: normalizedDrivingAnswers
+    });
+
+    console.log("normalizedDrivingAnswers: ",normalizedDrivingAnswers)
+
+    return res.status(201).json({
+      message: 'Result saved successfully',
+      data: resultEntry
+    });
+
   } catch (err) {
-    res.status(500).json({ message: 'Error saving result', error: err });
+    console.error(err);
+    return res.status(500).json({
+      message: 'Error saving result',
+      error: err.message
+    });
   }
 };
 
