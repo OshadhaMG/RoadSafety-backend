@@ -121,7 +121,7 @@ exports.getZoneQuestions = async (req, res) => {
   if (!Model) return res.status(400).json({ message: 'Invalid zone name' });
 
   try {
-    const questions = await Model.find();
+    const questions = await Model.find().limit(5);
     res.json(questions);
   } catch (err) {
     res.status(500).json({ message: 'Error fetching questions', error: err });
