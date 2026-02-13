@@ -410,7 +410,7 @@ exports.getTotalScore = async (req, res) => {
     }));
 
     // Total questions = 10 per zone
-    const totalQuestions = results.length * 10;
+    const totalQuestions = results.length * 5;
 
     // Calculate percentage
     const percentage = totalQuestions > 0 
