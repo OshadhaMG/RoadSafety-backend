@@ -77,7 +77,7 @@
 
 
 // controllers/QuestionsController.js
-const { Zone01, Zone02, Zone03, Zone04 } = require('../models/QuestionsAndAnswersModel');
+const { Zone01, Zone02, Zone03, Zone04, Final } = require('../models/QuestionsAndAnswersModel');
 const Login = require('../models/LoginModel');
 const Result = require('../models/ResultModel');
 
@@ -87,6 +87,7 @@ const getZoneModel = (zoneName) => {
     case 'zone02': return Zone02;
     case 'zone03': return Zone03;
     case 'zone04': return Zone04;
+    case 'final': return Final;
     default: return null;
   }
 };
@@ -121,7 +122,10 @@ exports.getZoneQuestions = async (req, res) => {
   if (!Model) return res.status(400).json({ message: 'Invalid zone name' });
 
   try {
-    const questions = await Model.find().limit(5);
+    // the final zone serves 10 questions per attempt; the practice zones show 5
+    const size = req.params.zoneName.toLowerCase() === 'final' ? 10 : 5;
+    // $sample picks a different random set on every request
+    const questions = await Model.aggregate([{ $sample: { size } }]);
     res.json(questions);
   } catch (err) {
     res.status(500).json({ message: 'Error fetching questions', error: err });
@@ -409,8 +413,10 @@ exports.getTotalScore = async (req, res) => {
       score: result.score || 0
     }));
 
-    // Total questions = 10 per zone
-    const totalQuestions = results.length * 5;
+    // 10 questions per final zone attempt, 5 in each practice zone
+    const totalQuestions = results.reduce((sum, result) => {
+      return sum + (String(result.zone).toLowerCase() === 'final' ? 10 : 5);
+    }, 0);
 
     // Calculate percentage
     const percentage = totalQuestions > 0 
